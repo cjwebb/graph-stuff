@@ -11,8 +11,7 @@
 
 (defn read-csv []
   "Reads running CSV, and returns a map of data"
-  ;TODO: make this use https://dl.dropboxusercontent.com/u/2272759/running.csv
-  (with-open [in-file (io/reader "/Users/colinwebb/Dropbox/Public/running.csv")]
+  (with-open [in-file (io/reader "https://dl.dropboxusercontent.com/u/2272759/running.csv")]
     (doall
       (csv/read-csv in-file))))
 
