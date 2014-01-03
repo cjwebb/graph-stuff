@@ -9,25 +9,36 @@
             [clojure.java.io :as io])
   (:gen-class))
 
-(defn read-csv []
-  "Reads running CSV, and returns a map of data"
-  (with-open [in-file (io/reader "https://dl.dropboxusercontent.com/u/2272759/running.csv")]
+(defn read-csv
+  "Reads CSV, and returns a map of data"
+  [filename]
+  (with-open [in-file (io/reader filename)]
     (doall
       (csv/read-csv in-file))))
+
+(defn read-csv-with-headers [headers filename]
+  (map (fn [x] (zipmap headers x)) (read-csv filename)))
 
 (def running-headers
   ["start_time", "end_time", "distance", "distance_unit"])
 
-(defn read-csv-with-headers []
-  (map (fn [x] (zipmap running-headers x)) (read-csv)))
-
 (defn index [req]
-  {:body {:running (read-csv-with-headers)}})
+  {:body {:running (read-csv-with-headers running-headers "https://dl.dropboxusercontent.com/u/2272759/running.csv")}})
 
 (defroutes all-routes
            (GET "/" [] index))
 
+(defn wrap-cors
+  "Allow requests from all origins"
+  [handler]
+  (fn [request]
+    (let [response (handler request)]
+      (update-in response
+                 [:headers "Access-Control-Allow-Origin"]
+                 (fn [_] "*")))))
+
 (def app
   (-> (handler/api all-routes)
+      (wrap-cors)
       (middleware/wrap-json-body)
       (middleware/wrap-json-response)))
