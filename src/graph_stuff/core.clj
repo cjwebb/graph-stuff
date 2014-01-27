@@ -23,7 +23,8 @@
   ["start_time", "end_time", "distance", "distance_unit"])
 
 (defn index [req]
-  {:body {:running (read-csv-with-headers running-headers "https://dl.dropboxusercontent.com/u/2272759/running.csv")}})
+  ; we reverse the data, as the csv is ordered newest-last, and we want newest-first
+  {:body {:running (reverse (read-csv-with-headers running-headers "https://dl.dropboxusercontent.com/u/2272759/running.csv"))}})
 
 (defroutes all-routes
            (GET "/" [] index))
